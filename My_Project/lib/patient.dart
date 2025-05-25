@@ -2,10 +2,12 @@ class Patient {
   final int id;
   final String name;
   final int age;
+  final String diagnosis;
   final String lastVisit;
   final String? phone; // nouveau champ optionnel
 
   Patient({
+    required this.diagnosis,
     required this.id,
     required this.name,
     required this.age,
@@ -19,7 +21,7 @@ class Patient {
       id: map['id'],
       name: map['name'],
       age: map['age'],
-
+      diagnosis: map['diagnosis'],
       lastVisit: map['lastVisit'],
       phone: map['phone'], // nouveau champ
     );
@@ -33,6 +35,7 @@ class Patient {
       'id': id,
       'name': name,
       'age': age,
+      'diagnosis': diagnosis,
       'lastVisit': lastVisit,
       'phone': phone, // nouveau champ
     };

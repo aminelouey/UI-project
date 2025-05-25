@@ -50,13 +50,15 @@ class _HomeScreenState extends State<HomeScreen> {
         return Patient(
           id: patient['Id'],
           name: patient['Full_Name'],
-          age: 30,
+          age: patient['Age'] ?? 0,
+          diagnosis: patient['Diagnosis'],
           lastVisit: patient['Date'] ?? 'N/A',
         );
       }).toList();
     });
   }
 
+// widget de sherch bar :
   Widget _buildSearchBar() {
     final themeService = Provider.of<ThemeService>(context);
     return Container(
@@ -72,7 +74,7 @@ class _HomeScreenState extends State<HomeScreen> {
         },
         decoration: InputDecoration(
           hintText: 'Search patient ...',
-          hintStyle: const TextStyle(fontWeight: FontWeight.w100),
+          hintStyle: const TextStyle(fontWeight: FontWeight.normal),
           prefixIcon: const Icon(Icons.search),
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(8),
@@ -86,18 +88,23 @@ class _HomeScreenState extends State<HomeScreen> {
   // Fetch all patients
   void _fetchPatients() async {
     final patientData = await _dbHelper.getPatientDetails('');
+    print("Patient data: $patientData"); // Ajouter ce log
     setState(() {
       _patients = patientData.map((patient) {
         return Patient(
           id: patient['Id'],
           name: patient['Full_Name'],
-          age: 30,
+          age: patient['Age'] ??
+              0, // Utiliser la valeur par défaut si elle est null,
+          diagnosis: patient['Diagnosis'] ?? 'N/A',
           lastVisit: patient['Date'] ?? 'N/A',
         );
       }).toList();
     });
+    print("Mapped patients: $_patients"); // Ajouter ce log
   }
 
+// set state of sidebar :
   void _toggleSidebar() {
     setState(() {
       _isSidebarOpen = !_isSidebarOpen;
@@ -121,6 +128,7 @@ class _HomeScreenState extends State<HomeScreen> {
         children: [
           Row(
             children: [
+              //sidebar
               Sidebar(
                 isOpen: _isSidebarOpen,
                 onToggle: _toggleSidebar,
@@ -137,7 +145,10 @@ class _HomeScreenState extends State<HomeScreen> {
                         Text(
                           'Patients',
                           style: TextStyle(
-                              fontSize: 35, fontWeight: FontWeight.bold),
+                            fontSize: 35,
+                            fontWeight: FontWeight.bold,
+                            fontFamily: "poppins",
+                          ),
                         ),
                       ],
                     ),
@@ -148,7 +159,9 @@ class _HomeScreenState extends State<HomeScreen> {
                         Text(
                           'Manage your patients here',
                           style: TextStyle(
-                              fontSize: 16, fontWeight: FontWeight.w100),
+                              fontSize: 16,
+                              fontFamily: "poppins",
+                              fontWeight: FontWeight.w100),
                         ),
                       ],
                     ),
@@ -161,6 +174,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         const SizedBox(width: 75),
                         _buildSearchBar(),
                         buildSizedBox2(screen),
+                        // new patient button :
                         Container(
                           width: 220,
                           height: 43,
@@ -190,6 +204,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                 Text(
                                   'New Patient',
                                   style: TextStyle(
+                                    fontFamily: "Poppins",
+                                    fontWeight: FontWeight.w100,
                                     color: themeService.isDarkMode
                                         ? Colors.black
                                         : Colors.white,
@@ -201,6 +217,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                       ],
                     ),
+                    // patient table:
                     Flexible(
                       child: SingleChildScrollView(
                         scrollDirection: Axis.vertical,
@@ -231,6 +248,7 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ],
           ),
+          //resultat de search bar
           if (_searchController.text.isNotEmpty && _searchResults.isNotEmpty)
             Positioned(
               top: 279,
@@ -339,6 +357,7 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
+// Appbar
   Widget _buildAppBar(ThemeService themeService) {
     return Container(
       height: 60,

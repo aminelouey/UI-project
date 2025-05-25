@@ -29,7 +29,7 @@ class PatientTable extends StatelessWidget {
       child: SingleChildScrollView(
         scrollDirection: Axis.horizontal,
         child: DataTable(
-          columnSpacing: 130,
+          columnSpacing: 80,
           columns: const [
             DataColumn(
                 label: Text(
@@ -42,6 +42,10 @@ class PatientTable extends StatelessWidget {
                         fontSize: 14.5, fontWeight: FontWeight.bold))),
             DataColumn(
                 label: Text('Age',
+                    style: TextStyle(
+                        fontSize: 14.5, fontWeight: FontWeight.bold))),
+            DataColumn(
+                label: Text('Diagnosis',
                     style: TextStyle(
                         fontSize: 14.5, fontWeight: FontWeight.bold))),
             DataColumn(
@@ -68,6 +72,11 @@ class PatientTable extends StatelessWidget {
                 )),
                 DataCell(Text(
                   patient.age.toString(),
+                  style: const TextStyle(
+                      fontSize: 16, fontWeight: FontWeight.normal),
+                )),
+                DataCell(Text(
+                  patient.diagnosis.toString(),
                   style: const TextStyle(
                       fontSize: 16, fontWeight: FontWeight.normal),
                 )),

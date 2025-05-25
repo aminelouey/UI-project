@@ -17,10 +17,12 @@ class _AjoutepatientState extends State<Ajoutepatient> {
   DateTime? selectedDate;
   String? selectedGenre;
 
+  final TextEditingController dateconsController = TextEditingController();
   final TextEditingController dateController = TextEditingController();
   final TextEditingController nameController = TextEditingController();
   final TextEditingController phoneController = TextEditingController();
   final TextEditingController traitementController = TextEditingController();
+  final TextEditingController diagnosisController = TextEditingController();
 
   void _toggleSidebar() {
     setState(() {
@@ -29,10 +31,20 @@ class _AjoutepatientState extends State<Ajoutepatient> {
   }
 
   @override
+  void initState() {
+    super.initState();
+    // Initialiser la date de consultation avec la date actuelle
+    final now = DateTime.now();
+    dateconsController.text = "${now.day}/${now.month}/${now.year}";
+  }
+
+  @override
   void dispose() {
     dateController.dispose();
     nameController.dispose();
     phoneController.dispose();
+    dateconsController.dispose();
+    diagnosisController.dispose();
     traitementController.dispose();
     super.dispose();
   }
@@ -151,7 +163,7 @@ class _AjoutepatientState extends State<Ajoutepatient> {
 
                   const SizedBox(height: 20),
 
-                  // Gender and phone row
+                  // date visit and phone ;
                   Row(
                     children: [
                       const SizedBox(width: 30),
@@ -176,22 +188,52 @@ class _AjoutepatientState extends State<Ajoutepatient> {
                         ),
                       ),
                       const SizedBox(width: 80),
-                      SizedBox(
+                      Container(
                         height: 45,
                         width: 300,
-                        child: Container(
-                          padding: const EdgeInsets.all(12),
-                          decoration: BoxDecoration(
-                            border: Border.all(color: Colors.black),
-                            borderRadius: BorderRadius.circular(4),
-                          ),
-                          child: Text(
-                            "${DateTime.now().day}/${DateTime.now().month}/${DateTime.now().year}",
-                            style: const TextStyle(fontSize: 16),
+                        decoration: BoxDecoration(
+                          border: Border.all(color: Colors.grey),
+                          borderRadius: BorderRadius.circular(8.0),
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.all(20.0),
+                          child: TextField(
+                            controller: dateconsController,
+                            readOnly: true,
+                            decoration: const InputDecoration(
+                              border: InputBorder.none,
+                            ),
                           ),
                         ),
                       ),
                     ],
+                  ),
+                  const SizedBox(height: 40),
+                  //diagnosi button :
+                  Padding(
+                    padding: const EdgeInsets.only(left: 35.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        _buildLabel("5-Diagnosi : ", themeService),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Padding(
+                    padding: const EdgeInsets.only(left: 32.0),
+                    child: Row(children: [
+                      SizedBox(
+                        height: 45,
+                        width: 300,
+                        child: TextField(
+                          controller: diagnosisController,
+                          decoration: const InputDecoration(
+                            border: OutlineInputBorder(),
+                          ),
+                        ),
+                      ),
+                    ]),
                   ),
 
                   const SizedBox(height: 20),
@@ -244,15 +286,20 @@ class _AjoutepatientState extends State<Ajoutepatient> {
                             onPressed: () async {
                               final String name = nameController.text.trim();
                               final String phone = phoneController.text.trim();
+                              final String visitdate =
+                                  dateconsController.text.trim();
                               final String birthdate =
                                   dateController.text.trim();
                               final String traitement =
                                   traitementController.text.trim();
+                              final String diagnosis =
+                                  diagnosisController.text.trim();
 
                               if (name.isEmpty ||
                                   phone.isEmpty ||
                                   birthdate.isEmpty ||
-                                  selectedGenre == null) {
+                                  traitement.isEmpty ||
+                                  diagnosis.isEmpty) {
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   const SnackBar(
                                       content:
@@ -270,11 +317,17 @@ class _AjoutepatientState extends State<Ajoutepatient> {
                                   throw "Invalid phone number";
                                 }
 
-                                await DatabaseHelper().addPatient(name, phone);
-                                await DatabaseHelper()
-                                    .updateAppointment(name, birthdate);
-                                await DatabaseHelper()
-                                    .updateTreatment(name, traitement);
+                                final dbHelper = DatabaseHelper();
+                                await dbHelper.addPatient(name, phone);
+                                // Mettre à jour le diagnostic immédiatement après l'ajout du patient
+                                await dbHelper.updateDiagnosis(name, diagnosis);
+                                await dbHelper.getAgeUsingSql(name);
+                                await dbHelper.updateAppointment(
+                                    name, visitdate);
+                                await dbHelper.updateTreatment(
+                                    name, traitement);
+
+                                // ajoute AGE :
 
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   const SnackBar(
@@ -284,7 +337,9 @@ class _AjoutepatientState extends State<Ajoutepatient> {
 
                                 // Reset fields
                                 nameController.clear();
+                                dateconsController.clear(); // Reset visit dat
                                 phoneController.clear();
+                                diagnosisController.clear();
                                 dateController.clear();
                                 traitementController.clear();
                                 selectedGenre = null;

@@ -15,7 +15,7 @@ class DatabaseHelper {
   Future<Database> _initDb() async {
     Directory documentsDirectory = await getApplicationDocumentsDirectory();
     String path = join(documentsDirectory.path, "clinic.db");
-
+    print("Database path: $path");
     return await openDatabase(
       path,
       version: 1,
@@ -67,10 +67,18 @@ class DatabaseHelper {
 
   Future<void> addPatient(String name, String phone) async {
     final db = await database;
-    await db.insert('Patients', {
+    final patientId = await db.insert('Patients', {
       'Full_Name': name,
       'Phone_Number': phone,
     });
+
+    // Initialiser le diagnostic avec une valeur par défaut
+    await db.update(
+      'Treatments',
+      {'Diagnosis': 'À déterminer'},
+      where: 'Patient_id = ?',
+      whereArgs: [patientId],
+    );
   }
 
   Future<void> updatePatientName(String oldName, String newName) async {
@@ -136,6 +144,24 @@ class DatabaseHelper {
       WHERE Patients.Full_Name LIKE ?
       ORDER BY Appointments.Date
     ''', ['%$name%']);
+  }
+
+  Future<int> getAgeUsingSql(String name) async {
+    final db = await database;
+    final result = await db.rawQuery(
+      '''
+      SELECT CAST((julianday('now') - julianday(Birth_Day)) / 365.25 AS INTEGER) as age
+      FROM Patients
+      WHERE Full_Name = ?
+      ''',
+      [name],
+    );
+
+    if (result.isNotEmpty && result.first['age'] != null) {
+      return result.first['age'] as int;
+    } else {
+      throw Exception('Patient not found or birth date missing');
+    }
   }
 
   Future<void> deletePatient(String name) async {
