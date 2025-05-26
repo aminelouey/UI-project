@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:projet_8016586/DataBaseHelper.dart';
+import 'package:projet_8016586/Data_Helper.dart';
+import 'package:projet_8016586/Patients_Model.dart';
 import 'package:projet_8016586/ajoutepatient.dart';
 import 'package:projet_8016586/patient_table.dart';
-import 'patient.dart';
 import 'theme_service.dart';
 import 'sidebar.dart';
 import 'package:provider/provider.dart';
@@ -20,7 +20,7 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   bool _isSidebarOpen = true;
 
-  final DatabaseHelper _dbHelper = DatabaseHelper();
+  final DataHelper _dbHelper = DataHelper();
   List<Patient> _patients = [];
 
   final TextEditingController _searchController = TextEditingController();
@@ -44,15 +44,15 @@ class _HomeScreenState extends State<HomeScreen> {
       return;
     }
 
-    final results = await _dbHelper.getPatientDetails(query);
+    final results = await _dbHelper.getAllPatients();
     setState(() {
       _searchResults = results.map((patient) {
         return Patient(
           id: patient['Id'],
-          name: patient['Full_Name'],
+          fullName: patient['Full_Name'],
           age: patient['Age'] ?? 0,
           diagnosis: patient['Diagnosis'],
-          lastVisit: patient['Date'] ?? 'N/A',
+          appointmentDate: patient['Date'] ?? 'N/A',
         );
       }).toList();
     });
@@ -87,17 +87,17 @@ class _HomeScreenState extends State<HomeScreen> {
 
   // Fetch all patients
   void _fetchPatients() async {
-    final patientData = await _dbHelper.getPatientDetails('');
+    final patientData = await _dbHelper.getAllPatients();
     print("Patient data: $patientData"); // Ajouter ce log
     setState(() {
       _patients = patientData.map((patient) {
         return Patient(
           id: patient['Id'],
-          name: patient['Full_Name'],
+          fullName: patient['Full_Name'],
           age: patient['Age'] ??
               0, // Utiliser la valeur par défaut si elle est null,
           diagnosis: patient['Diagnosis'] ?? 'N/A',
-          lastVisit: patient['Date'] ?? 'N/A',
+          appointmentDate: patient['Date'] ?? 'N/A',
         );
       }).toList();
     });
@@ -294,11 +294,12 @@ class _HomeScreenState extends State<HomeScreen> {
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
                                     Text(
-                                      "Name: ${patient.name}",
+                                      "Name: ${patient.fullName}",
                                       style: const TextStyle(
                                           fontWeight: FontWeight.bold),
                                     ),
-                                    Text("Last visit: ${patient.lastVisit}"),
+                                    Text(
+                                        "Last visit: ${patient.appointmentDate}"),
                                   ],
                                 ),
                                 actions: [
@@ -331,7 +332,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(
-                                      patient.name,
+                                      patient.fullName,
                                       style: const TextStyle(
                                         fontSize: 14,
                                         fontWeight: FontWeight.w500,

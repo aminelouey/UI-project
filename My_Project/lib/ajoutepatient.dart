@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:projet_8016586/DataBaseHelper.dart';
+import 'package:projet_8016586/Patients_Provider.dart';
 import 'package:projet_8016586/home_screen.dart';
 import 'package:projet_8016586/sidebar.dart';
 import 'package:projet_8016586/theme_service.dart';
@@ -18,7 +18,7 @@ class _AjoutepatientState extends State<Ajoutepatient> {
   String? selectedGenre;
 
   final TextEditingController dateconsController = TextEditingController();
-  final TextEditingController dateController = TextEditingController();
+  final TextEditingController ageController = TextEditingController();
   final TextEditingController nameController = TextEditingController();
   final TextEditingController phoneController = TextEditingController();
   final TextEditingController traitementController = TextEditingController();
@@ -40,7 +40,7 @@ class _AjoutepatientState extends State<Ajoutepatient> {
 
   @override
   void dispose() {
-    dateController.dispose();
+    ageController.dispose();
     nameController.dispose();
     phoneController.dispose();
     dateconsController.dispose();
@@ -49,22 +49,22 @@ class _AjoutepatientState extends State<Ajoutepatient> {
     super.dispose();
   }
 
-  Future<void> _selectDate(BuildContext context) async {
-    final DateTime? picked = await showDatePicker(
-      context: context,
-      initialDate: DateTime.now(),
-      firstDate: DateTime(1900),
-      lastDate: DateTime(2030),
-    );
+  // Future<void> _selectDate(BuildContext context) async {
+  //   final DateTime? picked = await showDatePicker(
+  //     context: context,
+  //     initialDate: DateTime.now(),
+  //     firstDate: DateTime(1900),
+  //     lastDate: DateTime(2030),
+  //   );
 
-    if (picked != null) {
-      setState(() {
-        selectedDate = picked;
-        dateController.text =
-            "${selectedDate!.day}/${selectedDate!.month}/${selectedDate!.year}";
-      });
-    }
-  }
+  //   if (picked != null) {
+  //     setState(() {
+  //       selectedDate = picked;
+  //       ageController.text =
+  //           "${selectedDate!.day}/${selectedDate!.month}/${selectedDate!.year}";
+  //     });
+  //   }
+  // }
 
   Widget _buildAppBar(ThemeService themeService) {
     return Container(
@@ -127,7 +127,7 @@ class _AjoutepatientState extends State<Ajoutepatient> {
                       const SizedBox(width: 30),
                       _buildLabel('1- Full Name:', themeService),
                       const SizedBox(width: 280),
-                      _buildLabel('2- Date of Birth:', themeService),
+                      _buildLabel('2- Age: ', themeService),
                     ],
                   ),
                   const SizedBox(height: 8),
@@ -149,13 +149,12 @@ class _AjoutepatientState extends State<Ajoutepatient> {
                         height: 45,
                         width: 300,
                         child: TextField(
-                          controller: dateController,
+                          controller: ageController,
                           decoration: const InputDecoration(
-                            hintText: 'dd/mm/yyyy',
                             border: OutlineInputBorder(),
                           ),
-                          readOnly: true,
-                          onTap: () => _selectDate(context),
+
+                          // onTap: () => _selectDate(context),
                         ),
                       ),
                     ],
@@ -285,19 +284,19 @@ class _AjoutepatientState extends State<Ajoutepatient> {
                           child: TextButton(
                             onPressed: () async {
                               final String name = nameController.text.trim();
+                              final String diagnosis =
+                                  diagnosisController.text.trim();
                               final String phone = phoneController.text.trim();
                               final String visitdate =
                                   dateconsController.text.trim();
-                              final String birthdate =
-                                  dateController.text.trim();
+                              final int age =
+                                  int.parse(ageController.text.trim());
                               final String traitement =
                                   traitementController.text.trim();
-                              final String diagnosis =
-                                  diagnosisController.text.trim();
 
                               if (name.isEmpty ||
                                   phone.isEmpty ||
-                                  birthdate.isEmpty ||
+                                  // age.isEmpty ||
                                   traitement.isEmpty ||
                                   diagnosis.isEmpty) {
                                 ScaffoldMessenger.of(context).showSnackBar(
@@ -317,15 +316,21 @@ class _AjoutepatientState extends State<Ajoutepatient> {
                                   throw "Invalid phone number";
                                 }
 
-                                final dbHelper = DatabaseHelper();
-                                await dbHelper.addPatient(name, phone);
+                                // final dbHelper = DataHelper();
+                                final pro = PatientProvider();
+                                await pro.addPatient(name, phone, age);
+                                await pro.updateDiagnosisAndTreatment(
+                                    name, diagnosis, traitement);
+                                await pro.updateAppointment(name, visitdate);
+
                                 // Mettre à jour le diagnostic immédiatement après l'ajout du patient
-                                await dbHelper.updateDiagnosis(name, diagnosis);
-                                await dbHelper.getAgeUsingSql(name);
-                                await dbHelper.updateAppointment(
-                                    name, visitdate);
-                                await dbHelper.updateTreatment(
-                                    name, traitement);
+                                // await dbHelper.updateDiagnosis(name, diagnosis);
+
+                                // // await dbHelper.getAgeUsingSql(name);
+                                // // await dbHelper.updateAppointment(
+                                // //     name, visitdate);
+                                // // await dbHelper.updateTreatment(
+                                // //     name, traitement);
 
                                 // ajoute AGE :
 
@@ -340,14 +345,15 @@ class _AjoutepatientState extends State<Ajoutepatient> {
                                 dateconsController.clear(); // Reset visit dat
                                 phoneController.clear();
                                 diagnosisController.clear();
-                                dateController.clear();
+                                ageController.clear();
                                 traitementController.clear();
                                 selectedGenre = null;
                                 setState(() {});
                               } catch (e) {
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   SnackBar(
-                                    content: Text("Error: ${e.toString()}"),
+                                    content:
+                                        Text("Errorrrrrrrr: ${e.toString()}"),
                                     backgroundColor: Colors.red,
                                   ),
                                 );

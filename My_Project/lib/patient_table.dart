@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:projet_8016586/DataBaseHelper.dart';
+import 'package:projet_8016586/Data_Helper.dart';
 import 'package:projet_8016586/theme_service.dart';
-import 'patient.dart';
+import 'Patients_Model.dart';
 
 class PatientTable extends StatelessWidget {
   final ThemeService themeService;
@@ -66,7 +66,7 @@ class PatientTable extends StatelessWidget {
                       fontSize: 17, fontWeight: FontWeight.bold),
                 )),
                 DataCell(Text(
-                  patient.name,
+                  patient.fullName,
                   style: const TextStyle(
                       fontSize: 16, fontWeight: FontWeight.normal),
                 )),
@@ -81,7 +81,7 @@ class PatientTable extends StatelessWidget {
                       fontSize: 16, fontWeight: FontWeight.normal),
                 )),
                 DataCell(Text(
-                  patient.lastVisit,
+                  patient.appointmentDate,
                   style: const TextStyle(
                       fontSize: 16, fontWeight: FontWeight.normal),
                 )),
@@ -91,9 +91,9 @@ class PatientTable extends StatelessWidget {
                       TextButton(
                         onPressed: () async {
                           final nameController =
-                              TextEditingController(text: patient.name);
+                              TextEditingController(text: patient.fullName);
                           final phoneController = TextEditingController(
-                              text: patient.phone ?? "hello");
+                              text: patient.phoneNumber ?? "hello");
                           final treatmentController = TextEditingController(
                               text: patient.treatment ?? "trararararara");
 
@@ -191,12 +191,12 @@ class PatientTable extends StatelessWidget {
                                         const SizedBox(width: 40),
                                         TextButton(
                                           onPressed: () async {
-                                            final db = DatabaseHelper();
+                                            final db = DataHelper();
                                             await db.updatePatientName(
-                                                patient.name,
+                                                patient.fullName,
                                                 nameController.text);
                                             await db.updatePhone(
-                                                patient.phone ?? "",
+                                                patient.phoneNumber ?? "",
                                                 phoneController.text);
                                             Navigator.of(context).pop();
                                             onRefresh();
@@ -232,7 +232,8 @@ class PatientTable extends StatelessWidget {
                             context: context,
                             builder: (_) => AlertDialog(
                               title: const Text("Confirm deletion"),
-                              content: Text("Delete patient ${patient.name}?"),
+                              content:
+                                  Text("Delete patient ${patient.fullName}?"),
                               actions: [
                                 TextButton(
                                   onPressed: () =>
@@ -248,13 +249,13 @@ class PatientTable extends StatelessWidget {
                           );
 
                           if (confirm == true) {
-                            final db = DatabaseHelper();
-                            await db.deletePatient(patient.name);
+                            final db = DataHelper();
+                            await db.deletePatient(patient.fullName);
                             onRefresh();
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
-                                  content:
-                                      Text("Patient ${patient.name} deleted.")),
+                                  content: Text(
+                                      "Patient ${patient.fullName} deleted.")),
                             );
                           }
                         },
