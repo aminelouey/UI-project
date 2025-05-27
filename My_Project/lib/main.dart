@@ -48,10 +48,13 @@ class _PatientManagementAppState extends State<MyApp> {
           debugShowCheckedModeBanner: false,
           title: 'Gestion des Patients',
           theme: themeService.themeData,
-          home: HomeScreen(
+          home:
+              //  HomeScreen(
+              //   themeService: themeService,
+              // ),
+              Splashscreen(
             themeService: themeService,
           ),
-          // const Splashscreen(),
         );
       },
     );

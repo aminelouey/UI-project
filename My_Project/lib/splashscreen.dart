@@ -6,28 +6,27 @@ import 'package:projet_8016586/home_screen%20(5).dart';
 import 'package:projet_8016586/theme_service.dart';
 
 class Splashscreen extends StatefulWidget {
-  const Splashscreen({super.key});
+  const Splashscreen({super.key, required ThemeService themeService});
 
   @override
   State<Splashscreen> createState() => _SplashscreenState();
 }
 
 class _SplashscreenState extends State<Splashscreen> {
-  late final ThemeService themeService;
-
-  // @override
-  // void initState() {
-  //   super.initState();
-  //   Timer(const Duration(seconds: 3), () {
-  //     Navigator.pushReplacement(
-  //       context,
-  //       MaterialPageRoute(
-  //           builder: (context) => HomeScreen(
-  //                 themeService: themeService,
-  //               )),
-  //     );
-  //   });
-  // }
+  final ThemeService themeService = ThemeService();
+  @override
+  void initState() {
+    super.initState();
+    Timer(const Duration(seconds: 3), () {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+            builder: (context) => HomeScreen(
+                  themeService: themeService,
+                )),
+      );
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -38,12 +37,12 @@ class _SplashscreenState extends State<Splashscreen> {
           children: [
             SvgPicture.asset('lib/assets/images/logooo.svg'),
             const SizedBox(
-              height: 15,
+              height: 100,
             ),
             const Padding(
               padding: EdgeInsets.symmetric(horizontal: 40),
               child: LinearProgressIndicator(
-                minHeight: 8,
+                minHeight: 6,
                 backgroundColor: Colors.white,
                 color: Colors.blue,
               ),
