@@ -10,17 +10,19 @@ class PatientProvider with ChangeNotifier {
   List<Patient> get patients => _patients;
 
   // Load all patients that match a name (use '' to load all)
-  Future<void> fetchPatients({String nameQuery = ''}) async {
-    final data = await _dataHelper.searchPatientByName(nameQuery);
-    _patients = data.map((e) => Patient.fromMap(e)).toList();
-    notifyListeners();
-  }
+ Future<void> fetchPatients({String nameQuery = ''}) async {
+  final data = await _dataHelper.searchPatientByName(nameQuery);
+  _patients = data.map((e) => Patient.fromMap(e)).toList();
+  notifyListeners();
+}
 
-  // Add a new patient and refresh list
-  Future<void> addPatient(String name, String phone, int age) async {
-    await _dataHelper.addPatient(name, phone, age);
-    await fetchPatients(); // refresh list
-  }
+// When saving new patients, ensure all fields have values:
+Future<void> addPatient(String name, String phone, int age) async {
+  if (name.isEmpty) name = 'Unknown';
+  if (phone.isEmpty) phone = 'Not provided';
+  await _dataHelper.addPatient(name, phone, age);
+  await fetchPatients();
+}
 
   // Update patient info
   Future<void> updatePatient({
@@ -50,10 +52,16 @@ class PatientProvider with ChangeNotifier {
   }
 
   // Update diagnosis and treatment
-  Future<void> updateDiagnosisAndTreatment(
-      String name, String diagnosis, String treatment) async {
+  Future<void> updateDiagnosis(
+      String name, String diagnosis) async {
     await _dataHelper.updateDiagnosis(name, diagnosis);
-    await _dataHelper.updateTreatment(name, treatment);
+    
+    await fetchPatients();
+  }
+    Future<void> updateTreatment(
+      String name, String traitement) async {
+    await _dataHelper.updateTreatment(name, traitement);
+    
     await fetchPatients();
   }
 

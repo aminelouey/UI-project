@@ -71,6 +71,7 @@ class _RendezVousPageState extends State<RendezvousPrincipale> {
             SizedBox(
               width: 100,
             ),
+            // Rendez vous text
             Text(
               'Rendez-vous',
               style: TextStyle(fontSize: 35, fontWeight: FontWeight.bold),
@@ -83,6 +84,7 @@ class _RendezVousPageState extends State<RendezvousPrincipale> {
             SizedBox(
               width: 100,
             ),
+            //Gérez vos rendez-vous ici
             Text(
               'Gérez vos rendez-vous ici',
               style: TextStyle(fontSize: 16, fontWeight: FontWeight.w100),

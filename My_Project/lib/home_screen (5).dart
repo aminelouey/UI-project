@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:projet_8016586/Data_Helper.dart';
 import 'package:projet_8016586/Patients_Model.dart';
-import 'package:projet_8016586/ajoutepatient.dart';
-import 'package:projet_8016586/patient_table.dart';
+import 'package:projet_8016586/ajoutepatient%20(3).dart';
+import 'package:projet_8016586/patient_table%20(3).dart';
+
 import 'theme_service.dart';
 import 'sidebar.dart';
 import 'package:provider/provider.dart';
@@ -53,37 +54,14 @@ class _HomeScreenState extends State<HomeScreen> {
           age: patient['Age'] ?? 0,
           diagnosis: patient['Diagnosis'],
           appointmentDate: patient['Date'] ?? 'N/A',
+          phoneNumber: '',
+          treatment: '',
         );
       }).toList();
     });
   }
 
 // widget de sherch bar :
-  Widget _buildSearchBar() {
-    final themeService = Provider.of<ThemeService>(context);
-    return Container(
-      width: 350,
-      decoration: BoxDecoration(
-        color: themeService.surfaceColor,
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: TextField(
-        controller: _searchController,
-        onChanged: (value) {
-          _searchPatients(value.trim());
-        },
-        decoration: InputDecoration(
-          hintText: 'Search patient ...',
-          hintStyle: const TextStyle(fontWeight: FontWeight.normal),
-          prefixIcon: const Icon(Icons.search),
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(8),
-          ),
-          contentPadding: const EdgeInsets.symmetric(vertical: 18),
-        ),
-      ),
-    );
-  }
 
   // Fetch all patients
   void _fetchPatients() async {
@@ -97,7 +75,8 @@ class _HomeScreenState extends State<HomeScreen> {
           age: patient['Age'] ??
               0, // Utiliser la valeur par défaut si elle est null,
           diagnosis: patient['Diagnosis'] ?? 'N/A',
-          appointmentDate: patient['Date'] ?? 'N/A',
+          appointmentDate: patient['Date'] ?? 'N/A', phoneNumber: '',
+          treatment: '',
         );
       }).toList();
     });
@@ -142,6 +121,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     const Row(
                       children: [
                         SizedBox(width: 100),
+                        // patient text
                         Text(
                           'Patients',
                           style: TextStyle(
@@ -156,6 +136,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     const Row(
                       children: [
                         SizedBox(width: 100),
+                        // Manage your patients here
                         Text(
                           'Manage your patients here',
                           style: TextStyle(
@@ -358,6 +339,33 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
+// Search bar
+  Widget _buildSearchBar() {
+    final themeService = Provider.of<ThemeService>(context);
+    return Container(
+      width: 350,
+      decoration: BoxDecoration(
+        color: themeService.surfaceColor,
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: TextField(
+        controller: _searchController,
+        onChanged: (value) {
+          _searchPatients(value.trim());
+        },
+        decoration: InputDecoration(
+          hintText: 'Search patient ...',
+          hintStyle: const TextStyle(fontWeight: FontWeight.normal),
+          prefixIcon: const Icon(Icons.search),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(8),
+          ),
+          contentPadding: const EdgeInsets.symmetric(vertical: 18),
+        ),
+      ),
+    );
+  }
+
 // Appbar
   Widget _buildAppBar(ThemeService themeService) {
     return Container(
@@ -377,6 +385,7 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
+// sizebox
   Widget buildSizedBox2(double screen) {
     if (screen > 1250) {
       return SizedBox(width: 330);

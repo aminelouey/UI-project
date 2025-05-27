@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:projet_8016586/Patients_Provider.dart';
-import 'package:projet_8016586/home_screen.dart';
+import 'package:projet_8016586/home_screen%20(5).dart';
 import 'package:projet_8016586/sidebar.dart';
 import 'package:projet_8016586/theme_service.dart';
 import 'package:provider/provider.dart';
@@ -319,8 +319,8 @@ class _AjoutepatientState extends State<Ajoutepatient> {
                                 // final dbHelper = DataHelper();
                                 final pro = PatientProvider();
                                 await pro.addPatient(name, phone, age);
-                                await pro.updateDiagnosisAndTreatment(
-                                    name, diagnosis, traitement);
+                                await pro.updateDiagnosis(name, diagnosis);
+                                await pro.updateTreatment(name, traitement);
                                 await pro.updateAppointment(name, visitdate);
 
                                 // Mettre à jour le diagnostic immédiatement après l'ajout du patient

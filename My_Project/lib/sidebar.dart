@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:projet_8016586/ajoutepatient.dart';
-import 'package:projet_8016586/home_screen.dart';
+import 'package:projet_8016586/ajoutepatient%20(3).dart';
+import 'package:projet_8016586/home_screen%20(5).dart';
+
 import 'package:projet_8016586/recommendation.dart';
 import 'package:projet_8016586/theme_service.dart';
 import 'package:provider/provider.dart';
@@ -23,38 +24,20 @@ class Sidebar extends StatelessWidget {
         color: themeService.surfaceColor,
       ),
       duration: const Duration(milliseconds: 300),
-      width: isOpen ? 250 : 90,
+      width: isOpen ? 230 : 90,
       child: Column(
         children: [
           Container(
             padding: const EdgeInsets.all(16),
             alignment: Alignment.center,
             child: IconButton(
-              icon: const Icon(Icons.menu),
+              icon: Icon(isOpen ? Icons.arrow_back : Icons.arrow_forward),
+              color: Colors.black87,
               onPressed: onToggle,
               tooltip: 'Toggle Sidebar',
             ),
           ),
-          const SizedBox(height: 30),
-          if (isOpen)
-            Row(
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                Padding(
-                  padding: const EdgeInsets.only(left: 8.0),
-                  child: Text(
-                    'PATIENTS',
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontFamily: 'Poppins',
-                      fontWeight: FontWeight.w100,
-                      color: themeService.textColor,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          const SizedBox(height: 5),
+          const SizedBox(height: 70),
           _buildSidebarButton(
               context,
               Icons.people,

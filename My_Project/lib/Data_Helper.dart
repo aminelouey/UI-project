@@ -53,27 +53,27 @@ class DataHelper {
         ON DELETE CASCADE ON UPDATE CASCADE
       )
     ''');
-
     await db.execute('''
-      CREATE TABLE Treatments (
-        Patient_id INTEGER,
-        Diagnosis TEXT,
-        Treatment TEXT,
-        FOREIGN KEY (Patient_id) REFERENCES Patients(Id)
-        ON DELETE CASCADE ON UPDATE CASCADE
-      )
-    ''');
+  CREATE TABLE Treatments (
+    Patient_id INTEGER,
+    Diagnosis TEXT DEFAULT 'No diagnosis yet',
+    Treatment TEXT DEFAULT 'No treatment yet',
+    FOREIGN KEY (Patient_id) REFERENCES Patients(Id)
+    ON DELETE CASCADE ON UPDATE CASCADE
+  )
+''');
 
     // Trigger to auto-create Appointment and Treatment rows when adding a new patient
-    await db.execute('''
-      CREATE TRIGGER id_trigger
-      AFTER INSERT ON Patients
-      FOR EACH ROW
-      BEGIN
-        INSERT INTO Appointments(Patient_id) VALUES (NEW.Id);
-        INSERT INTO Treatments(Patient_id) VALUES (NEW.Id);
-      END;
-    ''');
+   await db.execute('''
+  CREATE TRIGGER id_trigger
+  AFTER INSERT ON Patients
+  FOR EACH ROW
+  BEGIN
+    INSERT INTO Appointments(Patient_id) VALUES (NEW.Id);
+    INSERT INTO Treatments(Patient_id, Diagnosis, Treatment) 
+    VALUES (NEW.Id, 'No diagnosis yet', 'No treatment yet');
+  END;
+''');
 
     await db.execute('CREATE INDEX idx_name ON Patients(Full_Name);');
   }
