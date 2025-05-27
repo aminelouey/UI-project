@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:projet_8016586/theme_service.dart';
 import 'package:provider/provider.dart';
+import 'AssistantHost.dart';
+import 'DoctorClient.dart';
 
 class RendezvousPrincipale extends StatefulWidget {
   const RendezvousPrincipale({super.key});
