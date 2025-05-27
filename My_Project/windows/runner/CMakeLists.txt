@@ -6,6 +6,7 @@ project(runner LANGUAGES CXX)
 # work.
 #
 # Any new source files that you add to the application should be added here.
+set(APPLICATION_ICON "${CMAKE_SOURCE_DIR}/windows/runner/resources/app_icon.ico")
 add_executable(${BINARY_NAME} WIN32
   "flutter_window.cpp"
   "main.cpp"
