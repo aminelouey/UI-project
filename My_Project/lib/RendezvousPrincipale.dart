@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:projet_8016586/Add_Apointment.dart';
 import 'package:projet_8016586/theme_service.dart';
 import 'package:provider/provider.dart';
 import 'AssistantHost.dart';
@@ -13,6 +14,8 @@ class RendezvousPrincipale extends StatefulWidget {
 
 class _RendezVousPageState extends State<RendezvousPrincipale> {
   final TextEditingController _searchController = TextEditingController();
+
+  DoctorClient dc = DoctorClient();
 
   bool _isSidebarOpen = true;
   TextEditingController nomController = TextEditingController();
@@ -29,6 +32,19 @@ class _RendezVousPageState extends State<RendezvousPrincipale> {
   void dispose() {
     _searchController.dispose();
     super.dispose();
+  }
+
+  Future<void> search() async {
+    print("hello abdellatif! ");
+    Map<String, HostInfo> assistants = await dc.gaussDiscover();
+    for (var entry in assistants.entries) {
+      print(
+          "Host: ${entry.key} IP: ${entry.value.ip} Port: ${entry.value.port}");
+
+      await for (var message in dc.galileoStream(entry.value)) {
+        print('Received: $message');
+      }
+    }
   }
 
   Future<void> _selectDate(BuildContext context) async {
@@ -120,7 +136,13 @@ class _RendezVousPageState extends State<RendezvousPrincipale> {
                         ),
                         child: TextButton(
                           onPressed: () {
-                            _showAppointmentDialog(context);
+                            search();
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const AddApointment(),
+                              ),
+                            );
                           },
                           child: const Row(
                             children: [

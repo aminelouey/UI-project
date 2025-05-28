@@ -1,28 +1,29 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
-import 'package:projet_8016586/Patients_Provider.dart';
-import 'package:projet_8016586/home_screen%20(5).dart';
+import 'package:projet_8016586/AssistantHost.dart';
+import 'package:projet_8016586/Rendez_vous.dart';
+import 'package:projet_8016586/database.dart';
 import 'package:projet_8016586/sidebar.dart';
 import 'package:projet_8016586/theme_service.dart';
 import 'package:provider/provider.dart';
 
-class Ajoutepatient extends StatefulWidget {
-  const Ajoutepatient({super.key});
+class AddApointment extends StatefulWidget {
+  const AddApointment({super.key});
 
   @override
-  State<Ajoutepatient> createState() => _AjoutepatientState();
+  State<AddApointment> createState() => _AjoutepatientState();
 }
 
-class _AjoutepatientState extends State<Ajoutepatient> {
+class _AjoutepatientState extends State<AddApointment> {
   bool _isSidebarOpen = true;
   DateTime? selectedDate;
   String? selectedGenre;
 
-  final TextEditingController dateconsController = TextEditingController();
-  final TextEditingController ageController = TextEditingController();
+  final TextEditingController dateController = TextEditingController();
   final TextEditingController nameController = TextEditingController();
   final TextEditingController phoneController = TextEditingController();
-  final TextEditingController traitementController = TextEditingController();
-  final TextEditingController diagnosisController = TextEditingController();
+  final TextEditingController noteController = TextEditingController();
 
   void _toggleSidebar() {
     setState(() {
@@ -31,22 +32,54 @@ class _AjoutepatientState extends State<Ajoutepatient> {
   }
 
   @override
-  void initState() {
-    super.initState();
-    // Initialiser la date de consultation avec la date actuelle
-    final now = DateTime.now();
-    dateconsController.text = "${now.day}/${now.month}/${now.year}";
-  }
-
-  @override
   void dispose() {
-    ageController.dispose();
+    dateController.dispose();
     nameController.dispose();
     phoneController.dispose();
-    dateconsController.dispose();
-    diagnosisController.dispose();
-    traitementController.dispose();
+    noteController.dispose();
+
     super.dispose();
+  }
+
+  Future<void> Server() async {
+    /* Open database (check the class to customize its use) */
+    AppDatabase ad = AppDatabase(
+        // sqlite3.open('rendez_vous.db')
+        );
+    try {
+      /* Host local server with the assistant IP Address & database */
+      final host = await AssitantHost.create(Platform.localHostname, ad);
+      /* Start the local server */
+      await host.start();
+      // Sooo, you're all good to go now
+      /* Whenever you update in the database like:
+    ad.insert(77, "2024-11-03", "Name Surname", ...);
+    host.kepler();
+    */
+      /* Always call host.kepler(); 
+    because it tells all doctors that database got updated ;)
+    */
+      print('Server started on port ${host.port}');
+    } catch (e) {
+      print('Failed to start host: $e');
+    }
+  }
+
+  Future<void> _selectDate(BuildContext context) async {
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      firstDate: DateTime.now(),
+      lastDate: DateTime(2040),
+    );
+
+    if (picked != null) {
+      setState(() {
+        selectedDate = picked;
+        dateController.text =
+            "${selectedDate!.day}/${selectedDate!.month}/${selectedDate!.year}";
+      });
+    }
   }
 
   Widget _buildAppBar(ThemeService themeService) {
@@ -57,17 +90,14 @@ class _AjoutepatientState extends State<Ajoutepatient> {
         children: [
           IconButton(
             onPressed: () {
-              Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) =>
-                          HomeScreen(themeService: themeService)));
+              Navigator.push(context,
+                  MaterialPageRoute(builder: (context) => Rendyvous()));
             },
             icon: const Icon(Icons.arrow_back),
           ),
           const SizedBox(width: 8),
           const Text(
-            'New Patient',
+            'New Appointment',
             style: TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.bold,
@@ -110,7 +140,7 @@ class _AjoutepatientState extends State<Ajoutepatient> {
                       const SizedBox(width: 30),
                       _buildLabel('1- Full Name:', themeService),
                       const SizedBox(width: 280),
-                      _buildLabel('2- Age: ', themeService),
+                      _buildLabel('2- Date of Appointment: ', themeService),
                     ],
                   ),
                   const SizedBox(height: 8),
@@ -132,7 +162,7 @@ class _AjoutepatientState extends State<Ajoutepatient> {
                         height: 45,
                         width: 300,
                         child: TextField(
-                          controller: ageController,
+                          controller: dateController,
                           decoration: const InputDecoration(
                             border: OutlineInputBorder(),
                           ),
@@ -151,7 +181,6 @@ class _AjoutepatientState extends State<Ajoutepatient> {
                       const SizedBox(width: 30),
                       _buildLabel('3-Phone Number:', themeService),
                       const SizedBox(width: 245),
-                      _buildLabel("4- Consultation Date", themeService)
                     ],
                   ),
                   const SizedBox(height: 8),
@@ -169,54 +198,10 @@ class _AjoutepatientState extends State<Ajoutepatient> {
                           ),
                         ),
                       ),
-                      const SizedBox(width: 80),
-                      Container(
-                        height: 45,
-                        width: 300,
-                        decoration: BoxDecoration(
-                          border: Border.all(color: Colors.grey),
-                          borderRadius: BorderRadius.circular(8.0),
-                        ),
-                        child: Padding(
-                          padding: const EdgeInsets.all(20.0),
-                          child: TextField(
-                            controller: dateconsController,
-                            readOnly: true,
-                            decoration: const InputDecoration(
-                              border: InputBorder.none,
-                            ),
-                          ),
-                        ),
-                      ),
                     ],
                   ),
                   const SizedBox(height: 40),
                   //diagnosi button :
-                  Padding(
-                    padding: const EdgeInsets.only(left: 35.0),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      children: [
-                        _buildLabel("5-Diagnosi : ", themeService),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  Padding(
-                    padding: const EdgeInsets.only(left: 32.0),
-                    child: Row(children: [
-                      SizedBox(
-                        height: 45,
-                        width: 300,
-                        child: TextField(
-                          controller: diagnosisController,
-                          decoration: const InputDecoration(
-                            border: OutlineInputBorder(),
-                          ),
-                        ),
-                      ),
-                    ]),
-                  ),
 
                   const SizedBox(height: 20),
 
@@ -224,7 +209,7 @@ class _AjoutepatientState extends State<Ajoutepatient> {
                   Row(
                     children: [
                       const SizedBox(width: 30),
-                      _buildLabel('5- Treatment:', themeService),
+                      _buildLabel('5- Note:', themeService),
                     ],
                   ),
                   const SizedBox(height: 8),
@@ -235,7 +220,7 @@ class _AjoutepatientState extends State<Ajoutepatient> {
                         height: 400,
                         width: 650,
                         child: TextField(
-                          controller: traitementController,
+                          controller: noteController,
                           maxLines: null,
                           expands: true,
                           textAlignVertical: TextAlignVertical.top,
@@ -267,21 +252,17 @@ class _AjoutepatientState extends State<Ajoutepatient> {
                           child: TextButton(
                             onPressed: () async {
                               final String name = nameController.text.trim();
-                              final String diagnosis =
-                                  diagnosisController.text.trim();
+
                               final String phone = phoneController.text.trim();
                               final String visitdate =
-                                  dateconsController.text.trim();
-                              final int age =
-                                  int.parse(ageController.text.trim());
-                              final String traitement =
-                                  traitementController.text.trim();
+                                  dateController.text.trim();
+
+                              final String note = noteController.text.trim();
 
                               if (name.isEmpty ||
                                   phone.isEmpty ||
-                                  // age.isEmpty ||
-                                  traitement.isEmpty ||
-                                  diagnosis.isEmpty) {
+                                  note.isEmpty ||
+                                  visitdate.isEmpty) {
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   const SnackBar(
                                       content:
@@ -300,43 +281,27 @@ class _AjoutepatientState extends State<Ajoutepatient> {
                                 }
 
                                 // final dbHelper = DataHelper();
-                                final pro = PatientProvider();
-                                await pro.addPatient(name, phone, age);
-                                await pro.updateDiagnosis(name, diagnosis);
-                                await pro.updateTreatment(name, traitement);
-                                await pro.updateAppointment(name, visitdate);
 
-                                // Mettre à jour le diagnostic immédiatement après l'ajout du patient
-                                // await dbHelper.updateDiagnosis(name, diagnosis);
-
-                                // // await dbHelper.getAgeUsingSql(name);
-                                // // await dbHelper.updateAppointment(
-                                // //     name, visitdate);
-                                // // await dbHelper.updateTreatment(
-                                // //     name, traitement);
-
-                                // ajoute AGE :
+                                final pro = Appointmentee(
+                                  name: name,
+                                  date: visitdate,
+                                  phoneNumber: phone,
+                                  note: note,
+                                );
+                                final appdatabase = AppDatabase();
+                                appdatabase.updateAppointment(pro);
 
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   const SnackBar(
                                       content: Text(
-                                          'Patient registered successfully')),
+                                          'Appointmente registered successfully')),
                                 );
-
-                                // Reset fields
-                                nameController.clear();
-                                dateconsController.clear(); // Reset visit dat
-                                phoneController.clear();
-                                diagnosisController.clear();
-                                ageController.clear();
-                                traitementController.clear();
                                 selectedGenre = null;
                                 setState(() {});
                               } catch (e) {
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   SnackBar(
-                                    content:
-                                        Text("Errorrrrrrrr: ${e.toString()}"),
+                                    content: Text("Error: ${e.toString()}"),
                                     backgroundColor: Colors.red,
                                   ),
                                 );
@@ -344,9 +309,7 @@ class _AjoutepatientState extends State<Ajoutepatient> {
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                    builder: (context) => HomeScreen(
-                                      themeService: themeService,
-                                    ),
+                                    builder: (context) => const Rendyvous(),
                                   ),
                                 );
                               }
@@ -380,7 +343,7 @@ class _AjoutepatientState extends State<Ajoutepatient> {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (context) => const Ajoutepatient(),
+                                  builder: (context) => const AddApointment(),
                                 ),
                               );
                             },

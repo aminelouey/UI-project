@@ -1,14 +1,15 @@
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 
-class Appointment {
+class Appointmentee {
   final int? id;
   final String name;
   final String? date;
   final String? note;
   final String? phoneNumber;
 
-  Appointment({this.id, required this.name, this.date, this.note, this.phoneNumber});
+  Appointmentee(
+      {this.id, required this.name, this.date, this.note, this.phoneNumber});
 
   Map<String, dynamic> toMap() {
     return {
@@ -20,8 +21,8 @@ class Appointment {
     };
   }
 
-  factory Appointment.fromMap(Map<String, dynamic> map) {
-    return Appointment(
+  factory Appointmentee.fromMap(Map<String, dynamic> map) {
+    return Appointmentee(
       id: map['Id'],
       name: map['Name'],
       date: map['Date'],
@@ -69,24 +70,25 @@ class AppDatabase {
     ''');
   }
 
-  Future<int> insertAppointment(Appointment appointment) async {
+  Future<int> insertAppointment(Appointmentee appointment) async {
     final db = await database;
     return await db.insert('Appointments', appointment.toMap());
   }
 
-  Future<List<Appointment>> getAppointments({String? query}) async {
+  Future<List<Appointmentee>> getAppointments({String? query}) async {
     final db = await database;
     final result = await db.query('Appointments');
-    return result.map((map) => Appointment.fromMap(map)).toList();
+    return result.map((map) => Appointmentee.fromMap(map)).toList();
   }
 
-  Future<List<Appointment>> searchByName(String name) async {
+  Future<List<Appointmentee>> searchByName(String name) async {
     final db = await database;
-    final result = await db.query('Appointments', where: 'Name LIKE ?', whereArgs: ['%$name%']);
-    return result.map((map) => Appointment.fromMap(map)).toList();
+    final result = await db
+        .query('Appointments', where: 'Name LIKE ?', whereArgs: ['%$name%']);
+    return result.map((map) => Appointmentee.fromMap(map)).toList();
   }
 
-  Future<int> updateAppointment(Appointment appointment) async {
+  Future<int> updateAppointment(Appointmentee appointment) async {
     final db = await database;
     return await db.update(
       'Appointments',
@@ -98,7 +100,8 @@ class AppDatabase {
 
   Future<int> deleteAppointment(String name) async {
     final db = await database;
-    return await db.delete('Appointments', where: 'Name = ?', whereArgs: [name]);
+    return await db
+        .delete('Appointments', where: 'Name = ?', whereArgs: [name]);
   }
 
   Future close() async {
