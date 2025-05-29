@@ -1,7 +1,5 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
-import 'package:projet_8016586/AssistantHost.dart';
+
 import 'package:projet_8016586/Rendez_vous.dart';
 import 'package:projet_8016586/database.dart';
 import 'package:projet_8016586/sidebar.dart';
@@ -39,30 +37,6 @@ class _AjoutepatientState extends State<AddApointment> {
     noteController.dispose();
 
     super.dispose();
-  }
-
-  Future<void> Server() async {
-    /* Open database (check the class to customize its use) */
-    AppDatabase ad = AppDatabase(
-        // sqlite3.open('rendez_vous.db')
-        );
-    try {
-      /* Host local server with the assistant IP Address & database */
-      final host = await AssitantHost.create(Platform.localHostname, ad);
-      /* Start the local server */
-      await host.start();
-      // Sooo, you're all good to go now
-      /* Whenever you update in the database like:
-    ad.insert(77, "2024-11-03", "Name Surname", ...);
-    host.kepler();
-    */
-      /* Always call host.kepler(); 
-    because it tells all doctors that database got updated ;)
-    */
-      print('Server started on port ${host.port}');
-    } catch (e) {
-      print('Failed to start host: $e');
-    }
   }
 
   Future<void> _selectDate(BuildContext context) async {

@@ -1,7 +1,6 @@
 // fichier Modifier
 
 import 'package:flutter/material.dart';
-import 'package:projet_8016586/home_screen%20(5).dart';
 import 'package:projet_8016586/splashscreen.dart';
 import 'package:window_manager/window_manager.dart';
 

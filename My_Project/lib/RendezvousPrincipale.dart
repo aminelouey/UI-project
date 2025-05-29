@@ -34,19 +34,6 @@ class _RendezVousPageState extends State<RendezvousPrincipale> {
     super.dispose();
   }
 
-  Future<void> search() async {
-    print("hello abdellatif! ");
-    Map<String, HostInfo> assistants = await dc.gaussDiscover();
-    for (var entry in assistants.entries) {
-      print(
-          "Host: ${entry.key} IP: ${entry.value.ip} Port: ${entry.value.port}");
-
-      await for (var message in dc.galileoStream(entry.value)) {
-        print('Received: $message');
-      }
-    }
-  }
-
   Future<void> _selectDate(BuildContext context) async {
     final DateTime? picked = await showDatePicker(
       context: context,
@@ -136,7 +123,6 @@ class _RendezVousPageState extends State<RendezvousPrincipale> {
                         ),
                         child: TextButton(
                           onPressed: () {
-                            search();
                             Navigator.push(
                               context,
                               MaterialPageRoute(

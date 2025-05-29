@@ -12,7 +12,6 @@ class HostInfo {
   String toString() => '$ip:$port';
 }
 
-
 class DoctorClient {
   DoctorClient();
 
@@ -50,7 +49,7 @@ class DoctorClient {
       }
     });
 
-    await Future.delayed(Duration(seconds: 0));
+    await Future.delayed(Duration(seconds: 2));
     await subscription.cancel();
     socket.close();
 
@@ -70,9 +69,7 @@ class DoctorClient {
     }
     return null;
   }
-  
-  
-  
+
   Stream<dynamic> galileoStream(HostInfo hostInfo) async* {
     final uri = Uri.parse('ws://${hostInfo.ip}:${hostInfo.port}/events');
     WebSocket? socket;
@@ -95,7 +92,4 @@ class DoctorClient {
       //print('Disconnected from $hostInfo');
     }
   }
-
-
-
 }

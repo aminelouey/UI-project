@@ -1,5 +1,11 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:projet_8016586/AssistantHost.dart';
+import 'package:projet_8016586/DoctorClient.dart';
+
 import 'package:projet_8016586/Rendez_vous.dart';
+import 'package:projet_8016586/database.dart';
 import 'package:projet_8016586/home_screen%20(5).dart';
 import 'package:projet_8016586/theme_service.dart';
 
@@ -18,6 +24,50 @@ class _RecommendationDialogState extends State<RecommendationDialog> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       showAppointmentDialog(context);
     });
+  }
+
+  Future<void> Server() async {
+    /* Open database (check the class to customize its use) */
+    AppDatabase ad = AppDatabase(
+        //sqlite3.open('rendez_vous.db')
+        );
+    try {
+      /* Host local server with the assistant IP Address & database */
+      final host = await AssitantHost.create(Platform.localHostname, ad);
+      /* Start the local server */
+      await host.start();
+      // Sooo, you're all good to go now
+      /* Whenever you update in the database like:
+    ad.insert(77, "2024-11-03", "Name Surname", ...);
+    host.kepler();
+    */
+      /* Always call host.kepler(); 
+    because it tells all doctors that database got updated ;)
+    */
+      print('Server started on port ${host.port}');
+    } catch (e) {
+      print('Failed to start host: $e');
+    }
+  }
+
+  Future<void> Client() async {
+    /* Create a client to communicate with the assistant */
+    DoctorClient dc = DoctorClient();
+    /* Discover all available assistants */
+    Map<String, HostInfo> assistants = await dc.gaussDiscover();
+    for (var entry in assistants.entries) {
+      print(
+          "Host: ${entry.key} IP: ${entry.value.ip} Port: ${entry.value.port}");
+
+      await for (var message in dc.galileoStream(entry.value)) {
+        /*
+	for each update that happens like new 
+    rendez-vous, your code gets here and message is table holding all
+    rendez-vous with the added one
+    */
+        print('Received: $message');
+      }
+    }
   }
 
   @override
@@ -65,7 +115,6 @@ class _RecommendationDialogState extends State<RecommendationDialog> {
                         icon: Icons.person,
                         label: 'Doctore',
                         onTap: () {
-                          // Action
                           _showAppointmentDialog(context);
                         },
                         foregroundColor: Colors.black,
@@ -81,12 +130,12 @@ class _RecommendationDialogState extends State<RecommendationDialog> {
                         icon: Icons.group,
                         label: 'Assistant',
                         onTap: () {
+                          Client();
+                          Server();
                           Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => const Rendyvous(),
-                            ),
-                          );
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => const Rendyvous()));
                         },
                         foregroundColor: Colors.black,
                       ),
@@ -200,18 +249,39 @@ class _RecommendationDialogState extends State<RecommendationDialog> {
                   ),
                   const SizedBox(height: 15),
                   //Nov rendez-vous
-                  SizedBox(
+                  Container(
                     width: double.infinity,
                     height: 550,
-                    child: TextField(
-                      decoration: InputDecoration(
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(10),
+                      border: Border.all(color: Colors.black),
+                    ),
+                    child: Column(
+                      children: [
+                        Padding(
+                          padding: EdgeInsets.all(8.0),
+                          child: Container(
+                            height: 50,
+                            width: double.infinity,
+                            decoration: BoxDecoration(
+                              color: Colors.yellow,
+                              border: Border.all(color: Colors.black),
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            child: Row(
+                              children: [
+                                const SizedBox(width: 10),
+                                // Text("Host : ${assistants.keys.first}"),
+                                // const SizedBox(width: 10),
+                                // Text("IP : ${assistants.values.first.ip}"),
+                                // const SizedBox(width: 10),
+                                // Text("Port : ${assistants.values.first.port}"),
+                              ],
+                            ),
+                          ),
                         ),
-                      ),
-                      maxLines: null,
-                      expands: true,
-                      textAlignVertical: TextAlignVertical.top,
+                      ],
                     ),
                   ),
                   const SizedBox(
