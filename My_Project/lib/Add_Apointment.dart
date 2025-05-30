@@ -1,13 +1,20 @@
-import 'package:flutter/material.dart';
+import 'dart:io';
 
+import 'package:flutter/material.dart';
+import 'package:projet_8016586/AssistantHost.dart';
 import 'package:projet_8016586/Rendez_vous.dart';
+import 'package:projet_8016586/RendezvousPrincipaleASS.dart';
 import 'package:projet_8016586/database.dart';
 import 'package:projet_8016586/sidebar.dart';
 import 'package:projet_8016586/theme_service.dart';
 import 'package:provider/provider.dart';
 
 class AddApointment extends StatefulWidget {
-  const AddApointment({super.key});
+
+  final AssitantHost host;
+  final AppDatabase adb;
+
+  const AddApointment({super.key, required this.adb, required this.host});
 
   @override
   State<AddApointment> createState() => _AjoutepatientState();
@@ -22,6 +29,17 @@ class _AjoutepatientState extends State<AddApointment> {
   final TextEditingController nameController = TextEditingController();
   final TextEditingController phoneController = TextEditingController();
   final TextEditingController noteController = TextEditingController();
+
+  late final AssitantHost host;
+  late final AppDatabase adb;
+
+  @override
+  void initState() {
+    super.initState();
+    host = widget.host;
+    adb = widget.adb;
+  }
+
 
   void _toggleSidebar() {
     setState(() {
@@ -64,8 +82,9 @@ class _AjoutepatientState extends State<AddApointment> {
         children: [
           IconButton(
             onPressed: () {
-              Navigator.push(context,
-                  MaterialPageRoute(builder: (context) => Rendyvous()));
+              //Navigator.push(context,
+              //    MaterialPageRoute(builder: (context) => _rendyvousASS));
+              Navigator.pop(context);
             },
             icon: const Icon(Icons.arrow_back),
           ),
@@ -262,30 +281,33 @@ class _AjoutepatientState extends State<AddApointment> {
                                   phoneNumber: phone,
                                   note: note,
                                 );
-                                final appdatabase = AppDatabase();
-                                appdatabase.updateAppointment(pro);
+                                adb.updateAppointment(pro);
+                                host.kepler();
 
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   const SnackBar(
                                       content: Text(
                                           'Appointmente registered successfully')),
                                 );
+                                 
+                                // Reset fields
+                                nameController.clear();
+                                dateController.clear();
+                                phoneController.clear();
+                                noteController.clear();
                                 selectedGenre = null;
+                                
                                 setState(() {});
                               } catch (e) {
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   SnackBar(
-                                    content: Text("Error: ${e.toString()}"),
+                                    content:
+                                        Text("Errorrrrrrrr: ${e.toString()}"),
                                     backgroundColor: Colors.red,
                                   ),
                                 );
                               } finally {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => const Rendyvous(),
-                                  ),
-                                );
+                                Navigator.pop(context);
                               }
                             },
                             child: const Text(
@@ -314,12 +336,14 @@ class _AjoutepatientState extends State<AddApointment> {
                         child: SizedBox.expand(
                           child: TextButton(
                             onPressed: () {
-                              Navigator.push(
+                              // ???
+                              /*Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (context) => const AddApointment(),
+                                  builder: (context) => AddApointment(host: host, adb: adb),
                                 ),
-                              );
+                              );*/
+                              Navigator.pop(context);
                             },
                             child: Text(
                               'Cancel',

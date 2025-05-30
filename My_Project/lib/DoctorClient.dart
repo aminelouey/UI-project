@@ -39,6 +39,8 @@ class DoctorClient {
             final port = data['port'];
             final ip = datagram.address.address;
 
+            print('ip:$ip  port: $port');
+
             if (name != null && port != null) {
               hostMap[name] = HostInfo(ip, port);
             }
@@ -56,7 +58,7 @@ class DoctorClient {
     return hostMap;
   }
 
-  Future<List<dynamic>?> galileoReply(HostInfo hostInfo) async {
+  static Future<List<dynamic>?> galileoReply(HostInfo hostInfo) async {
     try {
       final uri = Uri.http('${hostInfo.ip}:${hostInfo.port}', '/get');
       final response = await http.get(uri);
@@ -70,18 +72,16 @@ class DoctorClient {
     return null;
   }
 
-  Stream<dynamic> galileoStream(HostInfo hostInfo) async* {
+  static Stream<dynamic> galileoStream(HostInfo hostInfo) async* {
     final uri = Uri.parse('ws://${hostInfo.ip}:${hostInfo.port}/events');
     WebSocket? socket;
     try {
       socket = await WebSocket.connect(uri.toString());
-      //print('Connected to $hostInfo');
 
       await for (final message in socket) {
         try {
           yield jsonDecode(message);
         } catch (_) {
-          // Skip malformed JSON
           continue;
         }
       }
@@ -89,7 +89,6 @@ class DoctorClient {
       print('WebSocket error: $e');
     } finally {
       await socket?.close();
-      //print('Disconnected from $hostInfo');
     }
   }
 }
