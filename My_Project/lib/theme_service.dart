@@ -44,4 +44,8 @@ class ThemeService extends ChangeNotifier {
   Color get buttonColor => _isDarkMode
       ? const Color.fromARGB(255, 255, 255, 255)
       : const Color.fromARGB(255, 0, 64, 255).withOpacity(0.6);
+
+  Color get foregroundColor => _isDarkMode
+      ? const Color.fromARGB(255, 255, 255, 255)
+      : const Color(0xFFE0F2FE);
 }

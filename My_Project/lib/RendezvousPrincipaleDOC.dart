@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:projet_8016586/Add_Apointment.dart';
 import 'package:projet_8016586/theme_service.dart';
 import 'package:provider/provider.dart';
 import 'DoctorClient.dart';
@@ -21,7 +20,6 @@ class _RendezVousPageDOCState extends State<RendezvousPrincipaleDOC> {
   final TextEditingController titreController = TextEditingController();
   final TextEditingController heureController = TextEditingController();
 
-  bool _isSidebarOpen = true;
   DateTime? selectedDate;
   TimeOfDay? selectedTime;
   List<Map<String, String>> rendezVousList = [];
@@ -79,12 +77,6 @@ class _RendezVousPageDOCState extends State<RendezvousPrincipaleDOC> {
             "${selectedDate!.day}/${selectedDate!.month}/${selectedDate!.year}";
       });
     }
-  }
-
-  void _toggleSidebar() {
-    setState(() {
-      _isSidebarOpen = !_isSidebarOpen;
-    });
   }
 
   @override
@@ -188,8 +180,8 @@ class _RendezVousPageDOCState extends State<RendezvousPrincipaleDOC> {
                               itemBuilder: (context, index) {
                                 return Container(
                                   width: double.infinity,
-                                  padding: EdgeInsets.all(16),
-                                  margin: EdgeInsets.symmetric(
+                                  padding: const EdgeInsets.all(16),
+                                  margin: const EdgeInsets.symmetric(
                                       vertical: 3, horizontal: 16),
                                   decoration: BoxDecoration(
                                     color: Color.fromARGB(255, 220, 220, 220),

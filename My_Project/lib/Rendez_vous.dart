@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:projet_8016586/DoctorClient.dart';
 import 'package:projet_8016586/RendezvousPrincipaleDOC.dart';
 import 'package:projet_8016586/RendezvousPrincipaleASS.dart';
+import 'package:projet_8016586/database.dart';
 import 'package:projet_8016586/sidebar.dart';
 import 'package:projet_8016586/theme_service.dart';
 import 'package:provider/provider.dart';
-
 
 class RendyvousASS extends StatefulWidget {
   const RendyvousASS({super.key});
@@ -45,7 +45,8 @@ class _MyRendyvousStateASS extends State<RendyvousASS> {
             isOpen: _isSidebarOpen,
             onToggle: _toggleSidebar,
           ),
-          Expanded( // 🔄 remove `const` because children depend on runtime variable
+          const Expanded(
+            // 🔄 remove `const` because children depend on runtime variable
             child: SingleChildScrollView(
               scrollDirection: Axis.vertical,
               child: Column(
@@ -61,7 +62,6 @@ class _MyRendyvousStateASS extends State<RendyvousASS> {
     );
   }
 }
-
 
 class _MyRendyvousStateDOC extends State<RendyvousDOC> {
   bool _isSidebarOpen = true;
@@ -88,7 +88,8 @@ class _MyRendyvousStateDOC extends State<RendyvousDOC> {
             isOpen: _isSidebarOpen,
             onToggle: _toggleSidebar,
           ),
-          Expanded( // 🔄 remove `const` because children depend on runtime variable
+          Expanded(
+            // 🔄 remove `const` because children depend on runtime variable
             child: SingleChildScrollView(
               scrollDirection: Axis.vertical,
               child: Column(

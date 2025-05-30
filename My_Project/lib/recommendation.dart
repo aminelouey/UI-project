@@ -55,7 +55,7 @@ class _RecommendationDialogState extends State<RecommendationDialog> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const Text(
-                    'Quel compte les choisissez-vous ?',
+                    'Which account do you choose?',
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       fontWeight: FontWeight.w400,
@@ -162,9 +162,7 @@ class _RecommendationDialogState extends State<RecommendationDialog> {
   }
 
   Future<void> _showAppointmentDialog(
-    BuildContext context,
-    DoctorClient doctor
-  ) async {
+      BuildContext context, DoctorClient doctor) async {
     Map<String, HostInfo> assistants = await doctor.gaussDiscover();
     showDialog(
       context: context,
@@ -173,8 +171,8 @@ class _RecommendationDialogState extends State<RecommendationDialog> {
           shape:
               RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
           child: SizedBox(
-            width: 600, // Largeur personnalisée
-            height: 750, // Hauteur personnalisée
+            width: 600, // Custom width
+            height: 750, // Custom height
             child: Padding(
               padding: EdgeInsets.all(18.0),
               child: Column(
@@ -205,7 +203,7 @@ class _RecommendationDialogState extends State<RecommendationDialog> {
                     ],
                   ),
                   const SizedBox(height: 15),
-                  //Nov rendez-vous
+                  //New appointment
                   Container(
                     width: double.infinity,
                     height: 550,
@@ -223,12 +221,13 @@ class _RecommendationDialogState extends State<RecommendationDialog> {
 
                         return GestureDetector(
                           onTap: () {
-                            //Navigator.pop(context); // optional: close dialog after click
-                            // Optionally, trigger any other update here
-                            Navigator.push(context, MaterialPageRoute(builder: (context)  => RendyvousDOC(
-                              key: null, thiz: hostInfo,
-                              )
-                            ));
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => RendyvousDOC(
+                                          key: null,
+                                          thiz: hostInfo,
+                                        )));
                           },
                           child: Padding(
                             padding: const EdgeInsets.all(8.0),

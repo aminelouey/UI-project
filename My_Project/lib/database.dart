@@ -75,7 +75,8 @@ class AppDatabase {
     return await db.insert('Appointments', appointment.toMap());
   }
 
-  Future<List<Appointmentee>> getAppointments({String? query}) async {
+// {String? query}
+  Future<List<Appointmentee>> getAppointments() async {
     final db = await database;
     final result = await db.query('Appointments');
     return result.map((map) => Appointmentee.fromMap(map)).toList();

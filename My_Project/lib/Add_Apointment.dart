@@ -1,16 +1,13 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:projet_8016586/AssistantHost.dart';
-import 'package:projet_8016586/Rendez_vous.dart';
 import 'package:projet_8016586/RendezvousPrincipaleASS.dart';
+
 import 'package:projet_8016586/database.dart';
 import 'package:projet_8016586/sidebar.dart';
 import 'package:projet_8016586/theme_service.dart';
 import 'package:provider/provider.dart';
 
 class AddApointment extends StatefulWidget {
-
   final AssitantHost host;
   final AppDatabase adb;
 
@@ -39,7 +36,6 @@ class _AjoutepatientState extends State<AddApointment> {
     host = widget.host;
     adb = widget.adb;
   }
-
 
   void _toggleSidebar() {
     setState(() {
@@ -159,8 +155,7 @@ class _AjoutepatientState extends State<AddApointment> {
                           decoration: const InputDecoration(
                             border: OutlineInputBorder(),
                           ),
-
-                          // onTap: () => _selectDate(context),
+                          onTap: () => _selectDate(context),
                         ),
                       ),
                     ],
@@ -281,7 +276,7 @@ class _AjoutepatientState extends State<AddApointment> {
                                   phoneNumber: phone,
                                   note: note,
                                 );
-                                adb.updateAppointment(pro);
+                                adb.insertAppointment(pro);
                                 host.kepler();
 
                                 ScaffoldMessenger.of(context).showSnackBar(
@@ -289,25 +284,24 @@ class _AjoutepatientState extends State<AddApointment> {
                                       content: Text(
                                           'Appointmente registered successfully')),
                                 );
-                                 
+                                // RendezvousPrincipaleASS()
                                 // Reset fields
                                 nameController.clear();
                                 dateController.clear();
                                 phoneController.clear();
                                 noteController.clear();
                                 selectedGenre = null;
-                                
+
                                 setState(() {});
                               } catch (e) {
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   SnackBar(
-                                    content:
-                                        Text("Errorrrrrrrr: ${e.toString()}"),
+                                    content: Text("Error: ${e.toString()}"),
                                     backgroundColor: Colors.red,
                                   ),
                                 );
                               } finally {
-                                Navigator.pop(context);
+                                Navigator.pop(context, true);
                               }
                             },
                             child: const Text(
