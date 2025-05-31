@@ -27,7 +27,7 @@ class _RendezVousPageASSState extends State<RendezvousPrincipaleASS> {
   late Future<AssitantHost> _hostFuture;
 
   void Appoint() {
-    adb.getAppointments();
+    /*adb.getAppointments();
     adb.getAppointments().then((list) {
       print("Nombre de rendez-vous dans la base : ${list.length}");
       for (var a in list) {
@@ -36,7 +36,7 @@ class _RendezVousPageASSState extends State<RendezvousPrincipaleASS> {
     });
 
     print("adb est bien executer !");
-    return;
+    return;*/
   }
 
   @override
@@ -83,247 +83,197 @@ class _RendezVousPageASSState extends State<RendezvousPrincipaleASS> {
           final host = hostSnapshot.data!;
           print('Host: ${host.hostname}  Port: ${host.port}');
 
-          return FutureBuilder<List<Appointmentee>>(
-            future: adb.getAppointments(),
-            builder: (context, appointmentSnapshot) {
-              if (appointmentSnapshot.connectionState ==
-                  ConnectionState.waiting) {
-                return const Center(child: CircularProgressIndicator());
-              } else if (appointmentSnapshot.hasError) {
-                return Center(
-                    child: Text('Error: ${appointmentSnapshot.error}'));
-              } else if (appointmentSnapshot.hasData) {
-                final appointmentList = appointmentSnapshot.data!;
-                print('Appointments lengh: ${appointmentList.length}');
-
-                return Column(
+          final appointmentList = adb.getAppointments(); // Synchronously get appointments
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _buildAppBar(themeService),
+              const SizedBox(height: 40),
+              const Padding(
+                padding: EdgeInsets.only(left: 100),
+                child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    _buildAppBar(themeService),
-                    const SizedBox(height: 40),
-                    const Padding(
-                      padding: EdgeInsets.only(left: 100),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+                    Text('Appointments',
+                        style: TextStyle(fontSize: 35, fontWeight: FontWeight.bold)),
+                    SizedBox(height: 5),
+                    Text('Manage your appointments here',
+                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.w100)),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 40),
+              SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: Padding(
+                  padding: const EdgeInsets.only(left: 80),
+                  child: Column(
+                    children: [
+                      Row(
                         children: [
-                          Text('Appointments',
-                              style: TextStyle(
-                                  fontSize: 35, fontWeight: FontWeight.bold)),
-                          SizedBox(height: 5),
-                          Text('Manage your appointments here',
-                              style: TextStyle(
-                                  fontSize: 16, fontWeight: FontWeight.w100)),
+                          _buildSearchBar(themeService),
+                          buildSizedBox2(screen),
+                          Container(
+                            width: 220,
+                            height: 43,
+                            decoration: BoxDecoration(
+                              color: themeService.isDarkMode
+                                  ? Colors.white
+                                  : const Color.fromARGB(255, 0, 64, 255).withOpacity(0.6),
+                              borderRadius: BorderRadius.circular(8.0),
+                            ),
+                            child: TextButton(
+                              onPressed: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) => AddApointment(
+                                            adb: adb,
+                                            host: host,
+                                            key: null,
+                                          )),
+                                ).then((value) {
+                                  if (value == true) {
+                                    setState(() {
+                                      // trigger rebuild if appointments are reloaded
+                                    });
+                                  }
+                                });
+                              },
+                              child: const Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(Icons.add, color: Colors.black, size: 22),
+                                  SizedBox(width: 13),
+                                  Text('New Appointment',
+                                      style: TextStyle(color: Colors.black)),
+                                ],
+                              ),
+                            ),
+                          ),
+                          buildSizedBox3(screen),
                         ],
                       ),
-                    ),
-                    const SizedBox(height: 40),
-                    SingleChildScrollView(
-                      scrollDirection: Axis.horizontal,
-                      child: Padding(
-                        padding: const EdgeInsets.only(left: 80),
-                        child: Column(
-                          children: [
-                            Row(
-                              children: [
-                                _buildSearchBar(themeService),
-                                buildSizedBox2(screen),
-                                Container(
-                                  width: 220,
-                                  height: 43,
-                                  decoration: BoxDecoration(
-                                    color: themeService.isDarkMode
-                                        ? Colors.white
-                                        : const Color.fromARGB(255, 0, 64, 255)
-                                            .withOpacity(0.6),
-                                    borderRadius: BorderRadius.circular(8.0),
-                                  ),
-                                  child: TextButton(
-                                    onPressed: () {
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                            builder: (context) => AddApointment(
-                                                  adb: adb,
-                                                  host: host,
-                                                  key: null,
-                                                )),
-                                      ).then((value) {
-                                        if (value == true) {
-                                          // L'ajout a été fait => recharger les données
-                                          setState(() {
-                                            appointmentListFuture =
-                                                adb.getAppointments();
-                                          });
-                                        }
-                                      });
-                                    },
-                                    child: const Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      children: [
-                                        Icon(Icons.add,
-                                            color: Colors.black, size: 22),
-                                        SizedBox(width: 13),
-                                        Text('New Appointment',
-                                            style:
-                                                TextStyle(color: Colors.black)),
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                                buildSizedBox3(screen),
-                              ],
-                            ),
-                            const SizedBox(height: 20),
-                            Container(
-                              width: (screen <= 900) ? 810 : 900,
-                              height: 700,
-                              decoration: BoxDecoration(
-                                color: themeService.isDarkMode
-                                    ? const Color.fromARGB(255, 0, 10, 27)
-                                        .withOpacity(0.6)
-                                    : Colors.white.withOpacity(0.6),
-                                border: Border.all(
-                                    color: const Color.fromARGB(
-                                        255, 214, 214, 214)),
-                                borderRadius: BorderRadius.circular(8),
+                      const SizedBox(height: 20),
+                      Container(
+                        width: (screen <= 900) ? 810 : 900,
+                        height: 700,
+                        decoration: BoxDecoration(
+                          color: themeService.isDarkMode
+                              ? const Color.fromARGB(255, 0, 10, 27).withOpacity(0.6)
+                              : Colors.white.withOpacity(0.6),
+                          border: Border.all(color: const Color.fromARGB(255, 214, 214, 214)),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 25, horizontal: 25),
+                          child: Column(
+                            children: [
+                              const Align(
+                                alignment: Alignment.topLeft,
+                                child: Text("Today's Appointments",
+                                    style: TextStyle(
+                                        fontSize: 20, fontWeight: FontWeight.bold)),
                               ),
-                              child: Padding(
-                                padding: const EdgeInsets.symmetric(
-                                    vertical: 25, horizontal: 25),
-                                child: Column(
-                                  children: [
-                                    const Align(
-                                      alignment: Alignment.topLeft,
-                                      child: Text("Today's Appointments",
-                                          style: TextStyle(
-                                              fontSize: 20,
-                                              fontWeight: FontWeight.bold)),
-                                    ),
-                                    const SizedBox(height: 10),
-                                    Expanded(
-                                      child: ListView.builder(
-                                        itemCount: appointmentList.length,
-                                        itemBuilder: (context, index) {
-                                          final appointment =
-                                              appointmentList[index];
-                                          return Container(
-                                            width: double.infinity,
-                                            padding: const EdgeInsets.all(16),
-                                            margin: const EdgeInsets.symmetric(
-                                                vertical: 3, horizontal: 16),
-                                            decoration: BoxDecoration(
-                                              color:
-                                                  themeService.foregroundColor,
-                                              borderRadius:
-                                                  BorderRadius.circular(10),
-                                              boxShadow: [
-                                                BoxShadow(
-                                                  color: const Color.fromARGB(
-                                                          255, 0, 0, 0)
-                                                      .withOpacity(0.1),
-                                                  blurRadius: 5,
-                                                  spreadRadius: 2,
-                                                ),
-                                              ],
+                              const SizedBox(height: 10),
+                              Expanded(
+                                child: ListView.builder(
+                                  itemCount: appointmentList.length,
+                                  itemBuilder: (context, index) {
+                                    final appointment = appointmentList[index];
+                                    return Container(
+                                      width: double.infinity,
+                                      padding: const EdgeInsets.all(16),
+                                      margin: const EdgeInsets.symmetric(
+                                          vertical: 3, horizontal: 16),
+                                      decoration: BoxDecoration(
+                                        color: themeService.foregroundColor,
+                                        borderRadius: BorderRadius.circular(10),
+                                        boxShadow: [
+                                          BoxShadow(
+                                            color: const Color.fromARGB(255, 0, 0, 0)
+                                                .withOpacity(0.1),
+                                            blurRadius: 5,
+                                            spreadRadius: 2,
+                                          ),
+                                        ],
+                                      ),
+                                      child: ListTile(
+                                        title: Row(
+                                          children: [
+                                            const Text("Full Name: ",
+                                                style: TextStyle(
+                                                    fontSize: 15,
+                                                    fontWeight: FontWeight.w500,
+                                                    color: Colors.black)),
+                                            Text(
+                                              appointment.name ?? '',
+                                              style: const TextStyle(
+                                                  fontSize: 15, color: Colors.black),
                                             ),
-                                            child: ListTile(
-                                              title: Row(
-                                                children: [
-                                                  const Text("Full Name: ",
-                                                      style: TextStyle(
-                                                          fontSize: 15,
-                                                          fontWeight:
-                                                              FontWeight.w500,
-                                                          color: Colors.black)),
-                                                  Text(
-                                                    appointment.name ?? '',
-                                                    style: const TextStyle(
-                                                        fontSize: 15,
-                                                        color: Colors.black),
-                                                  ),
-                                                ],
+                                          ],
+                                        ),
+                                        subtitle: Padding(
+                                          padding: const EdgeInsets.only(top: 4.0),
+                                          child: Row(
+                                            children: [
+                                              const Text("Date: ",
+                                                  style: TextStyle(
+                                                      fontSize: 15,
+                                                      fontWeight: FontWeight.w500,
+                                                      color: Colors.black)),
+                                              Text(
+                                                appointment.date ?? '',
+                                                style: const TextStyle(
+                                                    fontSize: 15, color: Colors.black),
                                               ),
-                                              subtitle: Padding(
-                                                padding: const EdgeInsets.only(
-                                                    top: 4.0),
-                                                child: Row(
+                                            ],
+                                          ),
+                                        ),
+                                        trailing: const Icon(Icons.arrow_forward_ios,
+                                            color: Colors.black),
+                                        onTap: () {
+                                          showDialog(
+                                            context: context,
+                                            builder: (context) {
+                                              return AlertDialog(
+                                                title: const Text("Appointment Details"),
+                                                content: Column(
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.start,
+                                                  mainAxisSize: MainAxisSize.min,
                                                   children: [
-                                                    const Text("Date: ",
-                                                        style: TextStyle(
-                                                            fontSize: 15,
-                                                            fontWeight:
-                                                                FontWeight.w500,
-                                                            color:
-                                                                Colors.black)),
                                                     Text(
-                                                      appointment.date ?? '',
-                                                      style: const TextStyle(
-                                                          fontSize: 15,
-                                                          color: Colors.black),
-                                                    ),
+                                                        "Full Name: ${appointment.name ?? ''}",
+                                                        style: const TextStyle(
+                                                            fontWeight: FontWeight.bold)),
+                                                    Text("Date: ${appointment.date ?? ''}"),
                                                   ],
                                                 ),
-                                              ),
-                                              trailing: const Icon(
-                                                  Icons.arrow_forward_ios,
-                                                  color: Colors.black),
-                                              onTap: () {
-                                                showDialog(
-                                                  context: context,
-                                                  builder: (context) {
-                                                    return AlertDialog(
-                                                      title: const Text(
-                                                          "Appointment Details"),
-                                                      content: Column(
-                                                        crossAxisAlignment:
-                                                            CrossAxisAlignment
-                                                                .start,
-                                                        mainAxisSize:
-                                                            MainAxisSize.min,
-                                                        children: [
-                                                          Text(
-                                                              "Full Name: ${appointment.name ?? ''}",
-                                                              style: const TextStyle(
-                                                                  fontWeight:
-                                                                      FontWeight
-                                                                          .bold)),
-                                                          Text(
-                                                              "Date: ${appointment.date ?? ''}"),
-                                                        ],
-                                                      ),
-                                                      actions: [
-                                                        TextButton(
-                                                          onPressed: () =>
-                                                              Navigator.pop(
-                                                                  context),
-                                                          child: const Text(
-                                                              "Close"),
-                                                        ),
-                                                      ],
-                                                    );
-                                                  },
-                                                );
-                                              },
-                                            ),
+                                                actions: [
+                                                  TextButton(
+                                                    onPressed: () => Navigator.pop(context),
+                                                    child: const Text("Close"),
+                                                  ),
+                                                ],
+                                              );
+                                            },
                                           );
                                         },
                                       ),
-                                    ),
-                                  ],
+                                    );
+                                  },
                                 ),
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
                       ),
-                    ),
-                  ],
-                );
-              }
-
-              return const Center(child: Text("Unknown Error"));
-            },
+                    ],
+                  ),
+                ),
+              ),
+            ],
           );
         }
 

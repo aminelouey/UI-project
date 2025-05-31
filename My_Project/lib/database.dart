@@ -1,5 +1,7 @@
-import 'package:sqflite/sqflite.dart';
+import 'dart:io';
 import 'package:path/path.dart';
+import 'package:sqlite3/sqlite3.dart';
+
 
 class Appointmentee {
   final int? id;
@@ -8,59 +10,51 @@ class Appointmentee {
   final String? note;
   final String? phoneNumber;
 
-  Appointmentee(
-      {this.id, required this.name, this.date, this.note, this.phoneNumber});
+  Appointmentee({
+    this.id,
+    required this.name,
+    this.date,
+    this.note,
+    this.phoneNumber,
+  });
 
-  Map<String, dynamic> toMap() {
-    return {
-      'Id': id,
-      'Name': name,
-      'Date': date,
-      'Note': note,
-      'Phone_Number': phoneNumber,
-    };
-  }
+  Map<String, Object?> toMap() => {
+        'Id': id,
+        'Name': name,
+        'Date': date,
+        'Note': note,
+        'Phone_Number': phoneNumber,
+      };
 
-  factory Appointmentee.fromMap(Map<String, dynamic> map) {
-    return Appointmentee(
-      id: map['Id'],
-      name: map['Name'],
-      date: map['Date'],
-      note: map['Note'],
-      phoneNumber: map['Phone_Number'],
-    );
-  }
+  factory Appointmentee.fromMap(Map<String, Object?> map) => Appointmentee(
+        id: map['Id'] as int?,
+        name: map['Name'] as String,
+        date: map['Date'] as String?,
+        note: map['Note'] as String?,
+        phoneNumber: map['Phone_Number'] as String?,
+      );
 }
 
+
 class AppDatabase {
-  static final AppDatabase _instance = AppDatabase._();
-  static Database? _database;
+  late final Database _db;
 
-  AppDatabase._();
+  AppDatabase._internal() {
+    final dbPath = join(
+      Directory.current.path,
+      'appointments.db',
+    );
 
+    _db = sqlite3.open(dbPath);
+    _createTableIfNeeded();
+  }
+
+  static final AppDatabase _instance = AppDatabase._internal();
   factory AppDatabase() => _instance;
 
-  Future<Database> get database async {
-    _database ??= await _initDB('appointments.db');
-    return _database!;
-  }
-
-  Future<Database> _initDB(String filePath) async {
-    final path = join(await getDatabasesPath(), filePath);
-    return openDatabase(
-      path,
-      version: 1,
-      onCreate: _createDB,
-      onOpen: (db) async {
-        await db.execute("PRAGMA auto_vacuum = ON;");
-        await db.execute("PRAGMA journal_mode = WAL;");
-      },
-    );
-  }
-
-  Future<void> _createDB(Database db, int version) async {
-    await db.execute('''
-      CREATE TABLE Appointments (
+  void _createTableIfNeeded() {
+    _db.execute('''
+      CREATE TABLE IF NOT EXISTS Appointments (
         Id INTEGER PRIMARY KEY AUTOINCREMENT,
         Name TEXT,
         Date TEXT DEFAULT (DATETIME('now','localtime')),
@@ -70,43 +64,71 @@ class AppDatabase {
     ''');
   }
 
-  Future<int> insertAppointment(Appointmentee appointment) async {
-    final db = await database;
-    return await db.insert('Appointments', appointment.toMap());
+  int insertAppointment(Appointmentee appointment) {
+    final stmt = _db.prepare('''
+      INSERT INTO Appointments (Name, Date, Note, Phone_Number)
+      VALUES (?, ?, ?, ?)
+    ''');
+
+    stmt.execute([
+      appointment.name,
+      appointment.date,
+      appointment.note,
+      appointment.phoneNumber,
+    ]);
+
+    stmt.dispose();
+    return _db.getUpdatedRows();
   }
 
-// {String? query}
-  Future<List<Appointmentee>> getAppointments() async {
-    final db = await database;
-    final result = await db.query('Appointments');
-    return result.map((map) => Appointmentee.fromMap(map)).toList();
+  List<Appointmentee> getAppointments() {
+    final ResultSet result = _db.select('SELECT * FROM Appointments');
+    return result.map((row) {
+      return Appointmentee.fromMap(row);
+    }).toList();
   }
 
-  Future<List<Appointmentee>> searchByName(String name) async {
-    final db = await database;
-    final result = await db
-        .query('Appointments', where: 'Name LIKE ?', whereArgs: ['%$name%']);
-    return result.map((map) => Appointmentee.fromMap(map)).toList();
+  List<Map<String, dynamic>> getAppointmentsFormatted() {
+  final ResultSet result = _db.select('SELECT * FROM Appointments');
+  return result.map((row) => Map<String, dynamic>.from(row)).toList();
+}
+
+
+  List<Appointmentee> searchByName(String name) {
+    final stmt = _db.prepare('SELECT * FROM Appointments WHERE Name LIKE ?');
+    final result = stmt.select(['%$name%']);
+    final list = result.map((row) => Appointmentee.fromMap(row)).toList();
+    stmt.dispose();
+    return list;
   }
 
-  Future<int> updateAppointment(Appointmentee appointment) async {
-    final db = await database;
-    return await db.update(
-      'Appointments',
-      appointment.toMap(),
-      where: 'Id = ?',
-      whereArgs: [appointment.id],
-    );
+  int updateAppointment(Appointmentee appointment) {
+    final stmt = _db.prepare('''
+      UPDATE Appointments SET
+        Name = ?, Date = ?, Note = ?, Phone_Number = ?
+      WHERE Id = ?
+    ''');
+
+    stmt.execute([
+      appointment.name,
+      appointment.date,
+      appointment.note,
+      appointment.phoneNumber,
+      appointment.id,
+    ]);
+
+    stmt.dispose();
+    return _db.getUpdatedRows();
   }
 
-  Future<int> deleteAppointment(String name) async {
-    final db = await database;
-    return await db
-        .delete('Appointments', where: 'Name = ?', whereArgs: [name]);
+  int deleteAppointment(String name) {
+    final stmt = _db.prepare('DELETE FROM Appointments WHERE Name = ?');
+    stmt.execute([name]);
+    stmt.dispose();
+    return _db.getUpdatedRows();
   }
 
-  Future close() async {
-    final db = await database;
-    db.close();
+  void close() {
+    _db.dispose();
   }
 }

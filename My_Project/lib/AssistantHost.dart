@@ -57,7 +57,7 @@ class AssitantHost {
   
   void kepler() {
     keplers.removeWhere((c) => c.closeCode != null);
-    final adbjs = adb.getAppointments();
+    final adbjs = adb.getAppointmentsFormatted();
     for (var client in keplers) {
       client.add(jsonEncode(adbjs));
     }
@@ -71,7 +71,7 @@ class AssitantHost {
     */
     // Handle GET requests
     if (request.method == 'GET' && request.uri.path == '/get') {
-      final adbjs = adb.getAppointments(); // Assume this is defined elsewhere
+      final adbjs = adb.getAppointmentsFormatted(); // Assume this is defined elsewhere
       request.response
         ..statusCode = HttpStatus.ok
         ..headers.contentType = ContentType.json

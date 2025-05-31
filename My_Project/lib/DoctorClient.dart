@@ -72,7 +72,7 @@ class DoctorClient {
     return null;
   }
 
-  static Stream<dynamic> galileoStream(HostInfo hostInfo) async* {
+  static Stream<List<dynamic>?> galileoStream(HostInfo hostInfo) async* {
     final uri = Uri.parse('ws://${hostInfo.ip}:${hostInfo.port}/events');
     WebSocket? socket;
     try {

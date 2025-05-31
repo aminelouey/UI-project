@@ -24,6 +24,8 @@ class _RendezVousPageDOCState extends State<RendezvousPrincipaleDOC> {
   TimeOfDay? selectedTime;
   List<Map<String, String>> rendezVousList = [];
 
+  List<dynamic> rendezVous = [];
+
   late final HostInfo host;
   StreamSubscription? _updateSubscription;
 
@@ -32,14 +34,22 @@ class _RendezVousPageDOCState extends State<RendezvousPrincipaleDOC> {
     super.initState();
     host = widget.thiz;
 
-    // Start listening
+    _initAsync();
     _startUpdater();
   }
+
+  Future<void> _initAsync() async {
+    final data = await DoctorClient.galileoReply(host);
+    rendezVous = data!;
+    //print('Received: $data');
+  }
+
 
   void _startUpdater() {
     _updateSubscription = DoctorClient.galileoStream(host).listen((message) {
       // Your update logic here
-      print('Received: $message');
+      //print('Received: $message');
+      rendezVous = message!;
       // Optionally update state:
       // setState(() {
       //   rendezVousList = message; // if message is List<Map>
